@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String      @unique
+  tel       String
+  password  String
+  isAdmin   Boolean     @default(false)
+  hashUpdateToken String?
+  payment   Payment[]
+  received  Received[]
+  productInCart ProductInCart[]
+
+  @@map("users")
+}
+
+enum hashUpdateToken {
+  String
+  Null
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String 
+  description String
+  product Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  price Float
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  productInCart ProductInCart[]
+
+  @@map("products")
+}
+
+model ProductInCart {
+  id Int @id @default(autoincrement())
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("product_in_cart")
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+  description String
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("payments")
+}
+
+model Received {
+  id Int @id @default(autoincrement())
+  description String
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("received_payments")
+}
+
+
